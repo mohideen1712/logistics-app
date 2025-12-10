@@ -1,0 +1,220 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container mt-5">
+  <div class="card shadow p-4">
+    <h2 class="text-center mb-4">Edit Shipment #{{ shipment[0] }}</h2>
+
+    <form action="{{ url_for('update', id=shipment[0]) }}" method="POST">
+
+      <!-- Customer Info -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Customer Name</label>
+          <input type="text" name="customer_name" class="form-control" value="{{ shipment[1] }}" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="customer_email" class="form-control" value="{{ shipment[2] }}" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Phone</label>
+          <input type="text" name="customer_phone" class="form-control" value="{{ shipment[3] }}" required>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Origin</label>
+          <input type="text" name="origin" class="form-control" value="{{ shipment[4] }}" required>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Destination</label>
+          <input type="text" name="destination" class="form-control" value="{{ shipment[5] }}" required>
+        </div>
+      </div>
+
+      <!-- Shipment Info -->
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Weight (kg)</label>
+          <input type="number" step="0.1" name="weight" class="form-control" value="{{ shipment[6] }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Qty</label>
+          <input type="text" name="qty" class="form-control" value="{{ shipment[40] }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Shipment Date</label>
+          <input type="date" name="shipment_date" class="form-control" value="{{ shipment[7] }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Estimated Delivery</label>
+          <input type="date" name="est_delivery_date" class="form-control" value="{{ shipment[10] }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Shipping Cost (SAR)</label>
+          <input type="number" step="0.01" name="shipping_cost" class="form-control" value="{{ shipment[11] }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Shipping Cost Desc</label>
+          <input type="text" name="shipping_cost_desc" class="form-control" value="{{ shipment[41] }}">
+        </div>
+      </div>
+
+      <!-- Cost Fields -->
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Freight Cost (SAR)</label>
+          <input type="number" step="0.01" name="customer_frt_cost" class="form-control" value="{{ shipment[15] or 0 }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Transport Cost (SAR)</label>
+          <input type="number" step="0.01" name="transport_cost" class="form-control" value="{{ shipment[16] or 0 }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Custom Clearance Cost (SAR)</label>
+          <input type="number" step="0.01" name="custom_clearance_cost" class="form-control" value="{{ shipment[17] or 0 }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Other Cost (SAR)</label>
+          <input type="number" step="0.01" name="other_cost" class="form-control" value="{{ shipment[18] or 0 }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">other_cost_desc</label>
+          <input type="text" name="other_cost_desc" class="form-control" value="{{ shipment[31] }}">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Other Cost 1 (SAR)</label>
+          <input type="number" step="0.01" name="other_cost_1" class="form-control" value="{{ shipment[19] or 0 }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">other_cost_1_desc</label>
+          <input type="text" name="other_cost_1_desc" class="form-control" value="{{ shipment[32] }}">
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Other Cost 2 (SAR)</label>
+          <input type="number" step="0.01" name="other_cost_2" class="form-control" value="{{ shipment[20] or 0 }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">other_cost_2_desc</label>
+          <input type="text" name="other_cost_2_desc" class="form-control" value="{{ shipment[33] }}">
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Other Cost 3 (SAR)</label>
+          <input type="number" step="0.01" name="other_cost_3" class="form-control" value="{{ shipment[21] or 0 }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">other_cost_3_desc</label>
+          <input type="text" name="other_cost_3_desc" class="form-control" value="{{ shipment[34] }}">
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Other Cost 4 (SAR)</label>
+          <input type="number" step="0.01" name="other_cost_4" class="form-control" value="{{ shipment[22] or 0 }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">other_cost_4_desc</label>
+          <input type="text" name="other_cost_4_desc" class="form-control" value="{{ shipment[35] }}">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Shipment VAT</label>
+          <select name="shipment_vat" class="form-select">
+            <option value="0" {% if shipment[38] == '0' %}selected{% endif %}>0%</option>
+            <option value="15" {% if shipment[38] == '15' %}selected{% endif %}>15%</option>
+          </select>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Other Cost VAT</label>
+          <select name="other_cost_vat" class="form-select">
+            <option value="0" {% if shipment[39] == '0' %}selected{% endif %}>0%</option>
+            <option value="15" {% if shipment[39] == '15' %}selected{% endif %}>15%</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Additional Info -->
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Container Number</label>
+          <input type="text" name="container_number" class="form-control" value="{{ shipment[23] }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">BL Number</label>
+          <input type="text" name="bl_number" class="form-control" value="{{ shipment[24] }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Customer Address</label>
+          <input type="text" name="customer_address" class="form-control" value="{{ shipment[25] }}">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">VAT Number</label>
+          <input type="text" name="vat_number" class="form-control" value="{{ shipment[26] }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Consignee Name</label>
+          <input type="text" name="consignee_name" class="form-control" value="{{ shipment[27] }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Consignee Address</label>
+          <input type="text" name="consignee_address" class="form-control" value="{{ shipment[28] }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Customs Agent</label>
+          <input type="text" name="customs_agent" class="form-control" value="{{ shipment[36] }}">
+        </div>
+      </div>
+
+      <!-- Carrier, Driver, Status -->
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Carrier</label>
+          <input type="text" name="carrier" class="form-control" value="{{ shipment[12] }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Driver</label>
+          <input type="text" name="driver" class="form-control" value="{{ shipment[13] }}">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select">
+            <option {% if shipment[9] == 'Pending' %}selected{% endif %}>Pending</option>
+            <option {% if shipment[9] == 'In Transit' %}selected{% endif %}>In Transit</option>
+            <option {% if shipment[9] == 'Delivered' %}selected{% endif %}>Delivered</option>
+            <option {% if shipment[9] == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Comments</label>
+          <input type="text" name="comments" class="form-control" value="{{ shipment[37] }}">
+        </div>
+      </div>
+
+      <!-- Tracking Number -->
+      <div class="mb-3">
+        <label class="form-label">Tracking Number</label>
+        <input type="text" name="tracking_number" class="form-control" value="{{ shipment[8] }}">
+      </div>
+
+      <div class="d-grid gap-2">
+        <button class="btn btn-success" type="submit">Update Shipment</button>
+        <a href="{{ url_for('shipments') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

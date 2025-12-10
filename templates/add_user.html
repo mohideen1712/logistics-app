@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container mt-4">
+  <h2 class="mb-4">Add New User</h2>
+
+  <form method="POST" action="{{ url_for('add_user') }}" class="card p-4 shadow-sm">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" name="username" id="username" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" name="password" id="password" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="role" class="form-label">Role</label>
+      <select name="role" id="role" class="form-select">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+      <i class="bi bi-person-plus"></i> Create User
+    </button>
+    <a href="{{ url_for('users') }}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 mt-4">
+  <h2>Shipment List</h2>
+  <a href="/" class="btn btn-secondary">Add New Shipment</a>
+</div>
+
+<form method="get" action="/shipments" class="row g-2 mb-3">
+  <div class="col-md-6">
+    <input type="text" name="search" class="form-control"
+       placeholder="Search by name, origin, destination, tracking #, container #, BL #"
+       value="{{ search }}">
+  </div>
+  <div class="col-md-3">
+    <select name="status" class="form-select">
+      <option value="">All statuses</option>
+      {% for st in statuses %}
+        <option value="{{ st }}" {% if st == status_filter %}selected{% endif %}>{{ st }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-3 d-flex gap-2">
+    <select name="sort" class="form-select">
+      <option value="id" {% if sort == 'id' %}selected{% endif %}>Newest</option>
+      <option value="customer" {% if sort == 'customer' %}selected{% endif %}>Customer Name</option>
+      <option value="date" {% if sort == 'date' %}selected{% endif %}>Shipment Date</option>
+      <option value="status" {% if sort == 'status' %}selected{% endif %}>Status</option>
+    </select>
+    <button class="btn btn-outline-primary flex-fill" type="submit">Apply</button>
+  </div>
+
+  <div class="col-md-12 text-end mt-2">
+    {% if session.get('role') == 'admin' %}
+      <a href="/export_csv?search={{ search }}&status={{ status_filter }}&sort={{ sort }}"
+        class="btn btn-outline-success">
+        <i class="bi bi-file-earmark-spreadsheet"></i> Download CSV
+      </a>
+    {% endif %}
+  </div>
+</form>
+
+<div class="card shadow">
+  <div class="table-responsive">
+    <table class="table table-striped table-hover mb-0">
+      <thead class="table-primary">
+        <tr>
+          <th>ID</th>
+          <th>Tracking #</th>
+          <th>Customer</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Origin → Destination</th>
+          <th>Weight (kg)</th>
+          <th>Qty</th>
+          <th>Ship Date</th>
+          <th>Est Delivery</th>
+          <th>Shipment Cost (SAR)</th>
+          <th>Shipping Cost Desc</th>
+          <th>Freight Cost (SAR)</th>
+          <th>Transport Cost (SAR)</th>
+          <th>Custom Clearance Cost (SAR)</th>
+          <th>Other Cost</th>
+          <th>Other Cost Desc</th>
+          <th>Other Cost 1</th>
+          <th>Other Cost 1 Desc</th>
+          <th>Other Cost 2</th>
+          <th>Other Cost 2 Desc</th>
+          <th>Other Cost 3</th>
+          <th>Other Cost 3 Desc</th>
+          <th>Other Cost 4</th>
+          <th>Other Cost 4 Desc</th>
+          <th>Shipment Vat</th>
+          <th>Other Cost Vat</th>
+          <th>Container #</th>
+          <th>BL #</th>
+          <th>Customer Address</th>
+          <th>VAT #</th>
+          <th>Consignee Name</th>
+          <th>Consignee Address</th>
+          <th>Customs Agent</th>
+          <th>Carrier</th>
+          <th>Driver</th>
+          <th>Status</th>
+          <th>Comments</th>
+          <th>Total Expenses</th>
+          <th>Profit/Loss</th>
+          <th>Created Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in shipments %}
+        {% set frt = s['customer_frt_cost'] | float %}
+        {% set transport = s['transport_cost'] | float %}
+        {% set clearance = s['custom_clearance_cost'] | float %}
+        {% set other = s['other_cost'] | float %}
+        {% set other1 = s['other_cost_1'] | float %}
+        {% set other2 = s['other_cost_2'] | float %}
+        {% set other3 = s['other_cost_3'] | float %}
+        {% set other4 = s['other_cost_4'] | float %}
+        {% set ship_cost = s['shipping_cost'] | float %}
+
+        {% set total_expenses = frt + transport + clearance + other + other1 + other2 + other3 + other4 %}
+        {% set profit_loss = ship_cost - total_expenses %}
+
+        <tr>
+          <td>{{ s['id'] }}</td>
+          <td>{{ s['tracking_number'] }}</td>
+          <td>{{ s['customer_name'] }}</td>
+          <td>{{ s['customer_email'] }}</td>
+          <td>{{ s['customer_phone'] }}</td>
+          <td>{{ s['origin'] }} → {{ s['destination'] }}</td>
+          <td>{{ s['weight'] }}</td>
+          <td>{{ s['qty'] }}</td>
+          <td>{{ s['shipment_date'] }}</td>
+          <td>{{ s['est_delivery_date'] }}</td>
+          <td>{{ "%.2f"|format(ship_cost) }}</td>
+          <td>{{ s['shipping_cost_desc'] }}</td>
+          <td>{{ "%.2f"|format(frt) }}</td>
+          <td>{{ "%.2f"|format(transport) }}</td>
+          <td>{{ "%.2f"|format(clearance) }}</td>
+          <td>{{ "%.2f"|format(other) }}</td>
+          <td>{{ s['other_cost_desc'] }}</td>
+          <td>{{ "%.2f"|format(other1) }}</td>
+          <td>{{ s['other_cost_1_desc'] }}</td>
+          <td>{{ "%.2f"|format(other2) }}</td>
+          <td>{{ s['other_cost_2_desc'] }}</td>
+          <td>{{ "%.2f"|format(other3) }}</td>
+          <td>{{ s['other_cost_3_desc'] }}</td>
+          <td>{{ "%.2f"|format(other4) }}</td>
+          <td>{{ s['other_cost_4_desc'] }}</td>
+          <td>{{ s['shipment_vat'] }}</td>
+          <td>{{ s['other_cost_vat'] }}</td>
+          <td>{{ s['container_number'] }}</td>
+          <td>{{ s['bl_number'] }}</td>
+          <td>{{ s['customer_address'] }}</td>
+          <td>{{ s['vat_number'] }}</td>
+          <td>{{ s['consignee_name'] }}</td>
+          <td>{{ s['consignee_address'] }}</td>
+          <td>{{ s['customs_agent'] }}</td>
+          <td>{{ s['carrier'] }}</td>
+          <td>{{ s['driver'] }}</td>
+          <td>{{ s['status'] }}</td>
+          <td>{{ s['comments'] }}</td>
+          <td>{{ "%.2f"|format(total_expenses) }}</td>
+          <td>
+            {% if profit_loss >= 0 %}
+              <span class="text-success">{{ "%.2f"|format(profit_loss) }}</span>
+            {% else %}
+              <span class="text-danger">{{ "%.2f"|format(profit_loss) }}</span>
+            {% endif %}
+          </td>
+          <td>{{ s['created_at'] }}</td>
+          
+          <td class="text-center">
+            <!-- Edit -->
+            <a href="{{ url_for('edit', shipment_id=s['id']) }}"
+              class="btn btn-sm btn-warning me-1"
+              title="Edit">
+              <i class="bi bi-pencil-square"></i>
+            </a>
+
+            {% if session.get('role') == 'admin' %}
+              <!-- Delete -->
+              <a href="/delete/{{ s['id'] }}"
+                class="btn btn-sm btn-danger me-1"
+                title="Delete"
+                onclick="return confirm('Delete this record?');">
+                <i class="bi bi-trash"></i>
+              </a>
+
+              <!-- Invoice -->
+              <a href="{{ url_for('generate_invoice', shipment_id=s['id']) }}"
+                class="btn btn-sm btn-info"
+                title="Generate Invoice"
+                target="_blank">
+                <i class="bi bi-file-earmark-text"></i>
+              </a>
+            {% endif %}
+          </td>
+
+        </tr>
+      {% else %}
+        <tr><td colspan="30" class="text-center">No shipments found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if total_pages > 1 %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% for p in range(1, total_pages + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link"
+           href="?page={{ p }}&search={{ search }}&status={{ status_filter }}&sort={{ sort }}">
+           {{ p }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

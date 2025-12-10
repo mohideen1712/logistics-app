@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Invoice {{ shipment['invoice_number'] }}</title></head>
+  <body>
+    <h1>Invoice: {{ shipment['invoice_number'] }}</h1>
+    <p>Invoice Date: {{ shipment['invoice_date'] }}</p>
+
+    <h2>Bill To</h2>
+    <p>{{ shipment['customer_name'] }}<br>{{ shipment['customer_address'] or '' }}</p>
+
+    <h3>Charges</h3>
+    <ul>
+      <li>Shipping Cost ({{ shipment['shipping_cost_desc'] or '' }}, QTY: {{ shipment['qty'] }}, VAT {{ shipment['shipment_vat'] }}%): {{ "%.2f"|format(shipment['shipping_cost'] or 0) }}</li>
+      <li>Other Cost 1 ({{ shipment['other_cost1_desc'] or '' }}, VAT {{ shipment['other_cost_vat'] }}%): {{ "%.2f"|format(shipment['other_cost_1'] or 0) }}</li>
+      <li>Other Cost 2 ({{ shipment['other_cost2_desc'] or '' }}, VAT {{ shipment['other_cost_vat'] }}%): {{ "%.2f"|format(shipment['other_cost_2'] or 0) }}</li>
+      <li>Other Cost 3 ({{ shipment['other_cost3_desc'] or '' }}, VAT {{ shipment['other_cost_vat'] }}%): {{ "%.2f"|format(shipment['other_cost_3'] or 0) }}</li>
+    </ul>
+  </body>
+</html>
