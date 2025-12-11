@@ -27,7 +27,7 @@ from bidi.algorithm import get_display
 app = Flask(__name__)
 app.secret_key = "replace_this_with_a_random_secret"  # change to a strong random string
 
-DB_PATH = 'database.db'
+DB_PATH = '/var/data/database.db'
 
 def safe_float(value, default=0.0):
     """Convert a string to float safely. Returns default if empty or invalid."""
