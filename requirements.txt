@@ -3,3 +3,5 @@ gunicorn
 reportlab
 arabic-reshaper
 python-bidi
+qrcode
+num2words
