@@ -27,7 +27,6 @@ from bidi.algorithm import get_display
 app = Flask(__name__)
 app.secret_key = "replace_this_with_a_random_secret"  # change to a strong random string
 
-DB_PATH = '/var/data/database.db'
 
 def safe_float(value, default=0.0):
     """Convert a string to float safely. Returns default if empty or invalid."""
@@ -265,6 +264,15 @@ def default_estimated_date(shipment_date_str):
         d = datetime.utcnow()
     est = d + timedelta(days=3)
     return est.strftime("%Y-%m-%d")
+
+DB_PATH = '/var/data/database.db'
+
+try:
+    init_db()
+    init_users_table()
+    create_initial_admin(username='admin', password='9884570669')
+except Exception as e:
+    print("Database initialization error:", e)
 
 # --- Routes ---
 @app.route('/')
