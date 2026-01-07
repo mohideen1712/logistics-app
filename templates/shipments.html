@@ -56,6 +56,7 @@
           <th>Qty</th>
           <th>Ship Date</th>
           <th>Est Delivery</th>
+          {% if session.get('role') == 'admin' %}
           <th>Shipment Cost (SAR)</th>
           <th>Shipping Cost Desc</th>
           <th>Freight Cost (SAR)</th>
@@ -71,6 +72,7 @@
           <th>Other Cost 3 Desc</th>
           <th>Other Cost 4</th>
           <th>Other Cost 4 Desc</th>
+          {% endif %}
           <th>Shipment Vat</th>
           <th>Other Cost Vat</th>
           <th>Container #</th>
@@ -116,6 +118,7 @@
           <td>{{ s['qty'] }}</td>
           <td>{{ s['shipment_date'] }}</td>
           <td>{{ s['est_delivery_date'] }}</td>
+          {% if session.get('role') == 'admin' %}
           <td>{{ "%.2f"|format(ship_cost) }}</td>
           <td>{{ s['shipping_cost_desc'] }}</td>
           <td>{{ "%.2f"|format(frt) }}</td>
@@ -131,6 +134,7 @@
           <td>{{ s['other_cost_3_desc'] }}</td>
           <td>{{ "%.2f"|format(other4) }}</td>
           <td>{{ s['other_cost_4_desc'] }}</td>
+          {% endif %}
           <td>{{ s['shipment_vat'] }}</td>
           <td>{{ s['other_cost_vat'] }}</td>
           <td>{{ s['container_number'] }}</td>
