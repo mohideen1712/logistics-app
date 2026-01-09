@@ -86,8 +86,10 @@
           <th>Driver</th>
           <th>Status</th>
           <th>Comments</th>
+          {% if session.get('role') == 'admin' %}
           <th>Total Expenses</th>
           <th>Profit/Loss</th>
+          {% endif %}
           <th>Created Date</th>
           <th>Actions</th>
         </tr>
@@ -148,6 +150,7 @@
           <td>{{ s['driver'] }}</td>
           <td>{{ s['status'] }}</td>
           <td>{{ s['comments'] }}</td>
+          {% if session.get('role') == 'admin' %}
           <td>{{ "%.2f"|format(total_expenses) }}</td>
           <td>
             {% if profit_loss >= 0 %}
@@ -156,6 +159,7 @@
               <span class="text-danger">{{ "%.2f"|format(profit_loss) }}</span>
             {% endif %}
           </td>
+          {% endif %}
           <td>{{ s['created_at'] }}</td>
           
           <td class="text-center">
