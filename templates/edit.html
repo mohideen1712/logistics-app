@@ -195,9 +195,12 @@
           <label class="form-label">Status</label>
           <select name="status" class="form-select">
             <option {% if shipment[9] == 'Pending' %}selected{% endif %}>Pending</option>
-            <option {% if shipment[9] == 'In Transit' %}selected{% endif %}>In Transit</option>
-            <option {% if shipment[9] == 'Delivered' %}selected{% endif %}>Delivered</option>
+            <option {% if shipment[9] == 'Sailed' %}selected{% endif %}>Sailed</option>
+            <option {% if shipment[9] == 'Job Completed' %}selected{% endif %}>Job Completed</option>
+            <option {% if shipment[9] == 'Payment Completed' %}selected{% endif %}>Payment Completed</option>
             <option {% if shipment[9] == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+
+
           </select>
         </div>
         <div class="col-md-4 mb-3">

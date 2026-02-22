@@ -19,6 +19,27 @@
       input[type=number] {
           -moz-appearance: textfield;
       }
+
+      /* ------------------------------ */
+      /* Reduce padding for full-width UI */
+      /* ------------------------------ */
+
+      /* Reduce left/right padding of main container */
+      .container-fluid {
+          padding-left: 8px !important;
+          padding-right: 8px !important;
+      }
+
+      /* Reduce card padding */
+      .card {
+          padding: 5px !important;
+      }
+
+      /* Reduce table cell padding for tighter rows */
+      table.table td, table.table th {
+          padding: 6px 8px !important;
+          font-size: 14px;
+      }
   </style>
 </head>
 
@@ -100,7 +121,7 @@
 </nav>
 
 <!-- ✅ MAIN CONTENT -->
-<div class="container mt-4">
+<div class="container-fluid mt-4">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}

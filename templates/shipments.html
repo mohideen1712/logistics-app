@@ -37,6 +37,11 @@
         class="btn btn-outline-success">
         <i class="bi bi-file-earmark-spreadsheet"></i> Download CSV
       </a>
+    {% else %}
+      <a href="/export_csv_user?search={{ search }}&status={{ status_filter }}&sort={{ sort }}"
+        class="btn btn-outline-success">
+        <i class="bi bi-file-earmark-spreadsheet"></i> Download CSV
+      </a>
     {% endif %}
   </div>
 </form>
@@ -47,11 +52,14 @@
       <thead class="table-primary">
         <tr>
           <th>ID</th>
-          <th>Tracking #</th>
           <th>Customer</th>
+          <th>Origin → Destination</th>
+          <th>Container #</th>
+          <th>BL #</th>
+          <th>Carrier</th>
+          <th>Tracking #</th>          
           <th>Email</th>
           <th>Phone</th>
-          <th>Origin → Destination</th>
           <th>Weight (kg)</th>
           <th>Qty</th>
           <th>Ship Date</th>
@@ -74,15 +82,12 @@
           <th>Other Cost 4 Desc</th>
           {% endif %}
           <th>Shipment Vat</th>
-          <th>Other Cost Vat</th>
-          <th>Container #</th>
-          <th>BL #</th>
+          <th>Other Cost Vat</th>          
           <th>Customer Address</th>
           <th>VAT #</th>
           <th>Consignee Name</th>
           <th>Consignee Address</th>
-          <th>Customs Agent</th>
-          <th>Carrier</th>
+          <th>Customs Agent</th>          
           <th>Driver</th>
           <th>Status</th>
           <th>Comments</th>
@@ -111,15 +116,18 @@
 
         <tr>
           <td>{{ s['id'] }}</td>
-          <td>{{ s['tracking_number'] }}</td>
           <td>{{ s['customer_name'] }}</td>
-          <td>{{ s['customer_email'] }}</td>
-          <td>{{ s['customer_phone'] }}</td>
           <td>{{ s['origin'] }} → {{ s['destination'] }}</td>
+          <td>{{ s['container_number'] }}</td>
+          <td>{{ s['bl_number'] }}</td>
+          <td>{{ s['carrier'] }}</td>
+          <td>{{ s['tracking_number'] }}</td>
+          <td>{{ s['customer_email'] }}</td>
+          <td>{{ s['customer_phone'] }}</td>          
           <td>{{ s['weight'] }}</td>
           <td>{{ s['qty'] }}</td>
-          <td>{{ s['shipment_date'] }}</td>
-          <td>{{ s['est_delivery_date'] }}</td>
+          <td>{{ s['shipment_date'] | format_date }}</td>
+          <td>{{ s['est_delivery_date'] | format_date }}</td>
           {% if session.get('role') == 'admin' %}
           <td>{{ "%.2f"|format(ship_cost) }}</td>
           <td>{{ s['shipping_cost_desc'] }}</td>
@@ -138,15 +146,12 @@
           <td>{{ s['other_cost_4_desc'] }}</td>
           {% endif %}
           <td>{{ s['shipment_vat'] }}</td>
-          <td>{{ s['other_cost_vat'] }}</td>
-          <td>{{ s['container_number'] }}</td>
-          <td>{{ s['bl_number'] }}</td>
+          <td>{{ s['other_cost_vat'] }}</td>          
           <td>{{ s['customer_address'] }}</td>
           <td>{{ s['vat_number'] }}</td>
           <td>{{ s['consignee_name'] }}</td>
           <td>{{ s['consignee_address'] }}</td>
-          <td>{{ s['customs_agent'] }}</td>
-          <td>{{ s['carrier'] }}</td>
+          <td>{{ s['customs_agent'] }}</td>          
           <td>{{ s['driver'] }}</td>
           <td>{{ s['status'] }}</td>
           <td>{{ s['comments'] }}</td>
@@ -160,7 +165,7 @@
             {% endif %}
           </td>
           {% endif %}
-          <td>{{ s['created_at'] }}</td>
+          <td>{{ s['created_at'] | format_date }}</td>
           
           <td class="text-center">
             <!-- Edit -->

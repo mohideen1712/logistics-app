@@ -28,6 +28,19 @@ app = Flask(__name__)
 app.secret_key = "replace_this_with_a_random_secret"  # change to a strong random string
 
 
+# -------------------------------
+# Jinja Filter: Format Date (YYYY-MM-DD → DD-MM-YYYY)
+# -------------------------------
+@app.template_filter('format_date')
+def format_date(value):
+    if not value:
+        return ""
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").strftime("%d-%m-%Y")
+    except:
+        return value
+# ------------
+
 def safe_float(value, default=0.0):
     """Convert a string to float safely. Returns default if empty or invalid."""
     try:
@@ -118,6 +131,10 @@ def init_db():
     )
     ''')
     conn.commit()
+
+    # 🔥 TEMPORARY MIGRATION (run once)
+    c.execute("UPDATE shipments SET status='Sailed' WHERE status='In Transit'")
+    c.execute("UPDATE shipments SET status='Job Completed' WHERE status='Delivered'")
 
     # Ensure any missing columns (in case table existed before)
     expected_cols = {
@@ -592,7 +609,7 @@ def shipments():
         
     # Restrict "Delivered" visibility to admins only
     if not session.get('role') == 'admin':
-        where_clauses.append("status != 'Delivered'")
+        where_clauses.append("status != 'Job Completed'")
 
     if where_clauses:
         where_sql = " WHERE " + " AND ".join(where_clauses)
@@ -618,7 +635,7 @@ def shipments():
     conn.close()
 
     total_pages = (total_records + per_page - 1) // per_page
-    statuses = ["Pending", "In Transit", "Delivered", "Cancelled"]
+    statuses = ["Pending", "Sailed", "Job Completed", "Payment Completed", "Cancelled"]
 
     # --- Calculate totals like in CSV ---
     shipments_list = []
@@ -655,6 +672,140 @@ def shipments():
         total_pages=total_pages,
         sort=sort,
         order=order
+    )
+
+@app.route('/export_csv_user') #Feb 2026 added the route
+@login_required
+def export_csv_user():
+    import csv
+    from io import StringIO, BytesIO
+
+    search = request.args.get("search", "").strip()
+    status_filter = request.args.get("status", "").strip()
+    sort = request.args.get("sort", "id")
+    order = request.args.get("order", "desc")
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+
+    # Base query: only columns visible to normal users (no cost fields)
+    base_query = """
+        SELECT id, tracking_number, customer_name, customer_email, customer_phone,
+               origin, destination, weight, qty, shipment_date, est_delivery_date,
+               container_number, bl_number, customer_address, vat_number,
+               consignee_name, consignee_address, customs_agent, driver, status,
+               comments, shipment_vat, other_cost_vat, created_at
+        FROM shipments
+    """
+
+    params = []
+    where_clauses = []
+
+    if search:
+        where_clauses.append(
+            "(customer_name LIKE ? OR origin LIKE ? OR destination LIKE ? "
+            "OR tracking_number LIKE ? OR container_number LIKE ? OR bl_number LIKE ?)"
+        )
+        like = f"%{search}%"
+        params.extend([like, like, like, like, like, like])
+
+    if status_filter:
+        where_clauses.append("status = ?")
+        params.append(status_filter)
+
+    # Normal users should not see "Job Completed" shipments
+    if session.get('role') != 'admin':
+        where_clauses.append("status != 'Job Completed'")
+
+    if where_clauses:
+        base_query += " WHERE " + " AND ".join(where_clauses)
+
+    valid_sorts = {
+        "id": "id",
+        "customer": "customer_name",
+        "date": "shipment_date",
+        "status": "status"
+    }
+    sort_column = valid_sorts.get(sort, "id")
+    base_query += f" ORDER BY {sort_column} {order.upper()}"
+
+    c.execute(base_query, params)
+    rows = c.fetchall()
+    conn.close()
+
+    # Prepare CSV in memory
+    si = StringIO()
+    writer = csv.writer(si)
+
+    # Headers: match what normal users see in the table (no cost columns)
+    headers = [
+        "ID",
+        "Customer",
+        "Tracking Number",
+        "Email",
+        "Phone",
+        "Origin",
+        "Destination",
+        "Weight (kg)",
+        "Qty",
+        "Shipment Date",
+        "Est Delivery",
+        "Container Number",
+        "BL Number",
+        "Customer Address",
+        "VAT Number",
+        "Consignee Name",
+        "Consignee Address",
+        "Customs Agent",
+        "Driver",
+        "Status",
+        "Comments",
+        "Shipment VAT",
+        "Other Cost VAT",
+        "Created Date",
+    ]
+    writer.writerow(headers)
+
+    for s in rows:
+        writer.writerow([
+            s["id"],
+            s["customer_name"],
+            s["tracking_number"],
+            s["customer_email"],
+            s["customer_phone"],
+            s["origin"],
+            s["destination"],
+            s["weight"],
+            s["qty"],
+            s["shipment_date"],
+            s["est_delivery_date"],
+            s["container_number"],
+            s["bl_number"],
+            s["customer_address"],
+            s["vat_number"],
+            s["consignee_name"],
+            s["consignee_address"],
+            s["customs_agent"],
+            s["driver"],
+            s["status"],
+            s["comments"],
+            f"{s['shipment_vat']}%" if s["shipment_vat"] else "0%",
+            f"{s['other_cost_vat']}%" if s["other_cost_vat"] else "0%",
+            s["created_at"],
+        ])
+
+    si.seek(0)
+    output = BytesIO()
+    output.write(si.getvalue().encode("utf-8-sig"))  # BOM for Excel compatibility
+    output.seek(0)
+
+    filename = f"user_shipments_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    return send_file(
+        output,
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name=filename,
     )
 
 from reportlab.lib.enums import TA_RIGHT
@@ -1260,6 +1411,7 @@ def update(id):
     qty = request.form.get('qty', '').strip()
     shipping_cost = safe_float(request.form.get('shipping_cost'))  # manual input
     shipping_cost_desc = request.form.get('shipping_cost_desc', '').strip()
+    shipment_date = request.form.get('shipment_date', '').strip() # Feb 2026
     est_delivery_date = request.form.get('est_delivery_date', '').strip()  # manual input
     carrier = request.form.get('carrier', '').strip()
     driver = request.form.get('driver', '').strip()
@@ -1293,13 +1445,13 @@ def update(id):
     customs_agent = request.form.get('customs_agent', '').strip()
     comments = request.form.get('comments', '').strip()
 
-    # --- Update DB --- #New Col
+    # --- Update DB --- #New Col -- Feb 2026
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
         UPDATE shipments
         SET customer_name=?, customer_email=?, customer_phone=?,
-            origin=?, destination=?, weight=?, qty=?,
+            origin=?, destination=?, weight=?, qty=?, shipment_date=?,
             shipping_cost=?, shipping_cost_desc=?, est_delivery_date=?, customer_frt_cost=?, transport_cost=?,
             custom_clearance_cost=?, other_cost=?, other_cost_desc=?, other_cost_1=?, other_cost_1_desc=?, 
             other_cost_2=?, other_cost_2_desc=?, other_cost_3=?, other_cost_3_desc=?, other_cost_4=?, other_cost_4_desc=?, 
@@ -1310,7 +1462,7 @@ def update(id):
         WHERE id=?
     """, (
         customer_name, customer_email, customer_phone,
-        origin, destination, weight, qty,
+        origin, destination, weight, qty, shipment_date,
         shipping_cost, shipping_cost_desc, est_delivery_date, customer_frt_cost, transport_cost,
         custom_clearance_cost, other_cost, other_cost_desc, other_cost_1, other_cost_1_desc,
         other_cost_2,  other_cost_2_desc, other_cost_3,  other_cost_3_desc, other_cost_4,  other_cost_4_desc, 
