@@ -132,6 +132,9 @@ def init_db():
     ''')
     conn.commit()
 
+    # 🔥 TEMPORARY MIGRATION (run once)
+    c.execute("UPDATE shipments SET status='Sailed' WHERE status='In Transit'")
+    c.execute("UPDATE shipments SET status='Job Completed' WHERE status='Delivered'")
 
     # Ensure any missing columns (in case table existed before)
     expected_cols = {
